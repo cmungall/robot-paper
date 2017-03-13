@@ -21,6 +21,10 @@ that source via a flow of operations. The source is edited by
 ontology developers, and the target(s) is what is released to
 consumers of the ontology. 
 
+We provide here a formal description of each ROBOT operation. We also
+provide practical examples of how to perform each one of these on the
+command line on the ROBOT website.
+
 ## Convert Operation
 
 The convert operation takes an ontology file in one format, and
@@ -93,12 +97,64 @@ convenience of consumers.
 The operation does not *saturate* the ontology - only *direct* axioms
 are added.
 
+For example, in the following ontology:
+
+```
+Class: A SubClassOf: B
+Class: B SubClassOf: C
+Class: XA EquivalentTo: X and R some A
+Class: XB EquivalentTo: X and R some B
+Class: XC EquivalentTo: X and R some C
+```
+
+Three axioms are entailed:
+
+ 1. XA SubClassOf XB
+ 2. XB SubClassOf XC
+ 3. XA SubClassOf XC
+
+However, only 1 and 2 (the *direct* SubClassOf) axioms are asserted
+back into the ontology.
+
 The terminology for distinguishing between ontologies in the prior and
 posterior state can be confusing: sometimes "pre-reasoned" is taken to
 mean the source ontology, before the reasoning step has been applied;
 sometimes it is taken to mean "this ontology has been reasoned in
 advance". Here we use `R-` to indicate that inferred axioms have not
 been added.
+
+## Materialization
+
+The Materialize operation is an extension to the Reason operation,
+which will assert the most direct parent, where the parent is either a
+named class or an *existential expression*, i.e. an expression of the
+form `R some C`. Normal OWL reasoning only produces the former.
+
+To explain the utility of this operation, we introduce the concept of
+a Basic Existential Graph (BEG), which is the graph formed from the
+set of `SubClass` axioms in an ontology, where the subclass is a named
+class, and the superclass is either a named class or a simple
+existential expression of the form `R some C`. Many applications,
+especially in bioinformatics, ignore all axioms in an ontology other
+than these, and map these axioms onto a graph, where edges are labeled
+either with is-a/SubClassOf, or with `R`. It is therefore important
+for an ontology to have a BEG that is complete, with respect to direct
+edges. The BEG formed by the OWLAPI Reason operation is not guaranteed
+complete, as can be seen in the following example:
+
+```
+TODO
+```
+
+To implement this operation, we extended the OWLAPI Reasoner interface
+to create an `ExtendedReasoner`, and created a default
+implementation which finds direct existential parents. This is
+avaialable as a standalone java library from GitHub and maven central.[CITE]
+
+
+This can be combined with filter and reduce to create an ontology subset that is complete
+
+    robot materialize --reasoner ELK --input emr_example.obo --term BFO:0000050 filter -t BFO:0000050 reduce --output results/emr_reduced.obo
 
 ## Relaxing equivalence axioms
 
@@ -112,17 +168,6 @@ Robot can be used to 'reduce' (i.e. remove redundant subClassOf axioms), indepen
 
     robot reduce --reasoner ELK --input ribosome.owl --output results/reduced.owl
 
-## Materialization
-
-Robot can materialize all parent superclass and superclass expressions using the expression materializing reasoner, which wraps an existing OWL Reasoner
-
-    robot materialize --reasoner ELK --input emr_example.obo --term obo:BFO_0000050  --output results/emr_output.obo
-
-This operation is similar to the reason command, but will also assert parents of the form `P some D`, for all P in the set passed in via `--property`
-
-This can be combined with filter and reduce to create an ontology subset that is complete
-
-    robot materialize --reasoner ELK --input emr_example.obo --term BFO:0000050 filter -t BFO:0000050 reduce --output results/emr_reduced.obo
 
 ## Diffing two ontologies
 
@@ -230,6 +275,7 @@ ROBOT can also create ontology files from templates. See [template.md](../docs/t
       --ontology-iri "https://github.com/ontodev/robot/examples/template.owl" \
       --output results/template.owl
 
+TODO: CITE QTT, DOSDP
 
 ## Validating Profiles
 
@@ -240,26 +286,18 @@ OWL 2 has a number of [profiles](https://www.w3.org/TR/owl2-profiles/) that stri
       --output results/merged-validation.txt
 
 
-## Chaining
 
-On Unix platforms it's common to "chain" a series of commands, creating "pipeline" that combines several simple commands to accomplish a complex task. This works because most Unix tools communicate with streams of text. Unfortunately this doesn't work as well for OWL ontologies, because they cannot be streamed between commands, but we can achieve a similar result within ROBOT.
+## Prefix Management
 
-ROBOT allows several commands to be chained by using the output ontology as the input to the next step. Here's an example of a full release pipeline using chained commands:
+Terms in OBO and OWL are identified using
+[IRIs](https://en.wikipedia.org/wiki/Internationalized_resource_identifier)
+(Internationalized Resource Identifiers), which generalize the
+familiar addresses for web pages. IRIs have many advantages, but one
+of their disadvantages is that they can be long. Additionally, by
+convention, ontology classes are frequently identified by a shortform
+identifier, e.g. `GO:0008150`
 
-    robot \
-      merge --input edit.owl \
-      reason --reasoner ELK \
-      annotate --annotation-file annotations.ttl --output results/example.owl \
-      convert --output results/example.obo
-
-Each command has been put on its own line, for clarity. Only the first command has an explicit `--input` argument. The following commands use the output of the previous command as their input. Also notice that the first two commands do not specify an `--output` file. Their output is not saved to the filesystem, only sent to the next command. But the last two commands both specify `--output` files, and their results are saved to different files.
-
-Chained commands are powerful but can be tedious to write out. Consider putting them in a `Makefile`.
-
-
-## Prefixes
-
-Terms in OBO and OWL are identified using [IRIs](https://en.wikipedia.org/wiki/Internationalized_resource_identifier) (Internationalized Resource Identifiers), which generalize the familiar addresses for web pages. IRIs have many advantages, but one of their disadvantages is that they can be pretty long. So we have standard ways to abbreviate IRIs in a particular context by specifying **prefixes**. For example, Turtle files start with `@prefix` statements, SPARQL queries start with `PREFIX` statements, and JSON-LD data includes a `@context` with prefixes.
+So we have standard ways to abbreviate IRIs in a particular context by specifying **prefixes**. For example, Turtle files start with `@prefix` statements, SPARQL queries start with `PREFIX` statements, and JSON-LD data includes a `@context` with prefixes.
 
 For robot we use the JSON-LD format. See `robot-core/src/main/resources/obo_context.jsonld` for the JSON-LD context that is used by default. It includes common, general linked-data prefixes, and prefixes for all the OBO library projects.
 

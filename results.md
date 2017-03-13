@@ -16,6 +16,9 @@ Jenkins
 
 ## Case Study: Relation Ontology
 
+The Relation Ontology (RO) differs from most other ontologies, in that the majority of content is in the *RBox* (i.e. axioms about relations), whereas for most ontologies the majority of content is in the TBox (i.e. axioms about classes or terms).
+
+
 We extended the concept of an incoherent ontology to include incoherent RBoxes
 
 ## Case Study: GO
