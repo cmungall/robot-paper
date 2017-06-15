@@ -275,7 +275,7 @@ ROBOT can also create ontology files from templates. See [template.md](../docs/t
       --ontology-iri "https://github.com/ontodev/robot/examples/template.owl" \
       --output results/template.owl
 
-TODO: CITE QTT, DOSDP
+TODO: CITE QTT, DOSDP\cite{OsumiSutherland2017}
 
 ## Validating Profiles
 

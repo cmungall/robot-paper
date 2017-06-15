@@ -125,8 +125,14 @@
 
 \author[
    addressref={rti},                   % id's of addresses, e.g. {aff1,aff2}
-   email={jbalhoff@rti.org}   % email address
+   email={balhoff@renci.org}   % email address
 ]{\inits{J}\fnm{James} \snm{Balhoff}}
+
+
+\author[
+   addressref={lbl},                   % id's of addresses, e.g. {aff1,aff2}
+   email={edouglass@lbl.gov}   % email address
+]{\fnm{Eric} \snm{Douglass}}
 
 \author[
    addressref={ebi},                   % id's of addresses, e.g. {aff1,aff2}
@@ -290,6 +296,7 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 \begin{backmatter}
 
 \section*{Competing interests}
@@ -299,7 +306,8 @@
 
 JAO designed and implemented the framework. CJM provided requirements
 and implemented the materialize and reduce operations. DOS provided
-requirements and specifications and performed testing for GO.
+requirements and specifications and performed testing for GO. JB and
+ED implemented portions of the code.
 
 \section*{Acknowledgements}
   Text for this section \ldots
@@ -318,9 +326,13 @@ requirements and specifications and performed testing for GO.
 %%                                                         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section*{References}
+
 % if your bibliography is in bibtex format, use those commands:
-\bibliographystyle{bmc-mathphys} % Style BST file (bmc-mathphys, vancouver, spbasic).
-\bibliography{bmc_article}      % Bibliography file (usually '*.bib' )
+\bibliographystyle{plain}
+%\bibliographystyle{bmc-mathphys} % Style BST file (bmc-mathphys, vancouver, spbasic).
+\bibliography{robot-paper}      % Bibliography file (usually '*.bib' )
+
 % for author-year bibliography (bmc-mathphys or spbasic)
 % a) write to bib file (bmc-mathphys only)
 % @settings{label, options="nameyear"}
@@ -328,6 +340,7 @@ requirements and specifications and performed testing for GO.
 %\nocite{label}
 
 % or include bibliography directly:
+
 % \begin{thebibliography}
 % \bibitem{b1}
 % \end{thebibliography}
